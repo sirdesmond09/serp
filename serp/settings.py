@@ -85,9 +85,7 @@ class Common(Configuration):
 
     # Database
     # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-    DATABASES = values.DatabaseURLValue(
-        'sqlite:///{}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
+    
 
     # Password validation
     # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -172,7 +170,10 @@ class Development(Common):
     MIDDLEWARE = Common.MIDDLEWARE + [
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
-
+    
+    DATABASES = values.DatabaseURLValue(
+        'sqlite:///{}'.format(os.path.join(Common.BASE_DIR, 'db.sqlite3'))
+    )
     
 
 
@@ -210,3 +211,14 @@ class Production(Staging):
 
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
+
+    DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'), 
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': '', 
+        }
+    }
