@@ -18,7 +18,7 @@ class Common(Configuration):
     BASE_DIR = Path(__file__).resolve().parent.parent
 
     # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = values.SecretValue()
+    SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG = values.BooleanValue(False)
@@ -171,10 +171,20 @@ class Development(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
     
-    DATABASES = values.DatabaseURLValue(
-        'sqlite:///{}'.format(os.path.join(Common.BASE_DIR, 'db.sqlite3'))
-    )
+    # DATABASES = values.DatabaseURLValue(
+    #     'sqlite:///{}'.format(os.path.join(Common.BASE_DIR, 'db.sqlite3'))
+    # )
     
+    DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': 'newbd',
+        'USER': 'root', 
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '', 
+        }
+    }
 
 
 class Staging(Common):
@@ -182,7 +192,7 @@ class Staging(Common):
     The in-staging settings.
     """
     # Security
-    SESSION_COOKIE_SECURE = values.BooleanValue(True)
+    SESSION_COOKIE_SECURE = values.BooleanValue(False)
     SECURE_BROWSER_XSS_FILTER = values.BooleanValue(True)
     SECURE_CONTENT_TYPE_NOSNIFF = values.BooleanValue(True)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = values.BooleanValue(True)
