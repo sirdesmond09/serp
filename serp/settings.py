@@ -230,5 +230,8 @@ class Production(Staging):
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': '', 
+        'OPTIONS': {
+            'init_command': 'SET default_storage_engine=INNODB',
+            }
         }
     }
