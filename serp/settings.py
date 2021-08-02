@@ -40,7 +40,7 @@ class Common(Configuration):
         'debug_toolbar',
 
         #my apps
-        'serp.users',
+        'users',
         'main',
 
         #rest frame work

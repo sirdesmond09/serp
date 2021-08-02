@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 
-from serp.users.permissions import IsManagerPermission, IsOwnerPermission
-from serp.users.models import User
-from serp.users.serializer import UserSerializer
+from users.permissions import IsManagerPermission, IsOwnerPermission
+from users.models import User
+from users.serializer import UserSerializer
 
 from .models import Employee, Customer, Invoice, InvoiceServices, Service
 from .serializer import EmployeeSerializer, CustomerSerializer, InvoiceSerializer, InvoiceServiceSerializer, ServiceSerializer, LoginSerializer
