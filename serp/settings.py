@@ -131,7 +131,7 @@ class Common(Configuration):
     #User Authentication
     AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
-        'serp.users.authentication.CustomUserAuthBackend',
+        'users.authentication.CustomUserAuthBackend',
     ]
 
     import datetime
