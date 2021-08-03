@@ -18,13 +18,14 @@ from rest_framework_jwt.utils import jwt_payload_handler, jwt
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
 
-from main import serializer
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
-
+@swagger_auto_schema(method='post', request_body=UserSerializer())
 @api_view(['GET', 'POST'])
-# @authentication_classes([JSONWebTokenAuthentication])
-# @permission_classes([IsOwnerPermission])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsOwnerPermission])
 def users(request):
     if request.method == 'GET':
         users =User.objects.filter(is_active=True)
@@ -48,6 +49,8 @@ def users(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(method='put', request_body=UserSerializer())
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsOwnerPermission])
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -77,6 +80,13 @@ def user_detail(request, user_id):
 
 
 #Login as a user or customer
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+    type=openapi.TYPE_OBJECT, 
+    properties={
+        'email': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+    }
+))
 @api_view([ 'POST'])
 def user_login(request):
     
@@ -121,7 +131,7 @@ def user_login(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@swagger_auto_schema(method='post', request_body=EmployeeSerializer())
 @api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsManagerPermission])
@@ -140,6 +150,7 @@ def employees(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(method='put', request_body=EmployeeSerializer())
 @api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsManagerPermission])
@@ -171,7 +182,7 @@ def employee_detail(request, employee_id):
 
 
 
-
+@swagger_auto_schema(method='post', request_body=CustomerSerializer())
 @api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -190,6 +201,7 @@ def customer(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(method='put', request_body=CustomerSerializer())
 @api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -218,7 +230,7 @@ def customer_detail(request, customer_id):
         return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)
 
 
-
+@swagger_auto_schema(method='post', request_body=ServiceSerializer())
 @api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -237,6 +249,7 @@ def service(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(method='put', request_body=ServiceSerializer())
 @api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsManagerPermission])
@@ -265,6 +278,7 @@ def service_detail(request, service_id):
         return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)
 
 
+@swagger_auto_schema(method='post', request_body=InvoiceSerializer())
 @api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -283,6 +297,7 @@ def invoice(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(method='put', request_body=InvoiceSerializer())
 @api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -310,7 +325,7 @@ def invoice_detail(request, invoice_id):
 
         return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)
 
-
+@swagger_auto_schema(method='put', request_body=InvoiceServiceSerializer())
 @api_view(['PUT', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])

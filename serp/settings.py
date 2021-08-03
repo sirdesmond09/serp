@@ -146,14 +146,17 @@ class Common(Configuration):
     }
 
     SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
+        'SECURITY_DEFINITIONS': {
+            'Bearer': {
+                'type': 'apiKey',
+                'name': 'Authorization',
+                'in': 'header'
+            }
         }
     }
+    
+    LOGIN_URL = 'rest_framework:login'
+    LOGOUT_URL = 'rest_framework:logout'
 
 class Development(Common):
     """
@@ -171,20 +174,11 @@ class Development(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
     
-    # DATABASES = values.DatabaseURLValue(
-    #     'sqlite:///{}'.format(os.path.join(Common.BASE_DIR, 'db.sqlite3'))
-    # )
+    DATABASES = values.DatabaseURLValue(
+        'sqlite:///{}'.format(os.path.join(Common.BASE_DIR, 'db.sqlite3'))
+    )
     
-    DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': 'newbd',
-        'USER': 'root', 
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '', 
-        }
-    }
+    
 
 
 class Staging(Common):
