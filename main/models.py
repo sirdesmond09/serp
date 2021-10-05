@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms.models import model_to_dict
 # Create your models here.
 
 class Employee(models.Model):
@@ -89,10 +90,14 @@ class Invoice(models.Model):
         return
 
     @property
-    def employee_names(self):
-        employees = self.employee.all()
-        return {employee.id: f"{employee.first_name} {employee.last_name}" for employee in employees} 
+    def employee_detail(self):
+        employees = self.employee.all().values()
+        return employees 
 
+    @property
+    def customer_detail(self):
+        return model_to_dict(self.customer)
+    
 
 class InvoiceServices(models.Model):
     invoice = models.ForeignKey(Invoice, related_name='service_rendered', on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -104,10 +109,14 @@ class InvoiceServices(models.Model):
 
     def __str__(self) -> str:
         return f"Service for {self.invoice.invoice_num}"
+    
+    @property
+    def service_detail(self):
+        return model_to_dict(self.service)
 
     def delete(self):
         self.is_active = False
         self.save()
         return
 
-### owner@serp.co | mama2020
+### owner@serp.com | testpass123

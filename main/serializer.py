@@ -31,18 +31,21 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class InvoiceServiceSerializer(serializers.ModelSerializer):
+    service_detail = serializers.ReadOnlyField()
     class Meta:
         model = InvoiceServices
-        fields = ['id', 'invoice', 'service', 'quantity', 'charge', 'is_active', 'date_added']
+        fields = ['id', 'invoice', 'service', 'service_detail','quantity', 'charge', 'is_active', 'date_added']
+        
 
 class InvoiceSerializer(serializers.ModelSerializer):
     service_rendered = InvoiceServiceSerializer(many=True)
-    employee_names = serializers.ReadOnlyField()
+    employee_detail = serializers.ReadOnlyField()
+    customer_detail = serializers.ReadOnlyField()
 
     class Meta:
         model = Invoice
         fields = ['id','invoice_num' ,
-    'customer' ,'employee', 'employee_names',
+    'customer','customer_detail' ,'employee', 'employee_detail',
     'sub_total','vat',
     'grand_total',
     'is_active',
