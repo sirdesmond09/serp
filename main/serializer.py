@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee, Customer, Invoice, InvoiceServices, Service
+from .models import Designation, Employee, Customer, Invoice, InvoiceServices, Service
 import uuid
 from django.utils import timezone
 
@@ -11,10 +11,10 @@ class LoginSerializer(serializers.Serializer):
 
     
 class EmployeeSerializer(serializers.ModelSerializer):
-    
+    designation_details = serializers.ReadOnlyField()
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'designation', 'designation_details', 'hour_rate', 'phone', 'email', 'address1', 'address2', 'state', 'city', 'picture_url', 'country', 'is_active', 'date_added']
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -82,4 +82,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class DesignationSerializer(serializers.ModelSerializer):
     
+    class Meta:
+        model = Designation
+        fields = '__all__'

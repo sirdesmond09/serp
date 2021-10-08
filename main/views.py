@@ -7,8 +7,8 @@ from users.permissions import IsManagerPermission, IsOwnerPermission
 from users.models import User
 from users.serializer import UserSerializer
 
-from .models import Employee, Customer, Invoice, InvoiceServices, Service
-from .serializer import EmployeeSerializer, CustomerSerializer, InvoiceSerializer, InvoiceServiceSerializer, ServiceSerializer, LoginSerializer
+from .models import Designation, Employee, Customer, Invoice, InvoiceServices, Service
+from .serializer import DesignationSerializer, EmployeeSerializer, CustomerSerializer, InvoiceSerializer, InvoiceServiceSerializer, ServiceSerializer, LoginSerializer
 
 import random
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -348,5 +348,53 @@ def invoice_item_edit(request, invoice_id, service_rendered_id):
 
     elif request.method == 'DELETE':
         item.delete()
+
+        return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)
+    
+
+@swagger_auto_schema(method='post', request_body=CustomerSerializer())
+@api_view(['GET', 'POST'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def designation(request):
+    if request.method == 'GET':
+        obj = Designation.objects.filter(is_active=True)
+        serializer = DesignationSerializer(obj, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = DesignationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(method='put', request_body=DesignationSerializer())
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def designation_detail(request, designation_id):
+    try:
+        obj = Designation.objects.get(id=designation_id)
+    except Designation.DoesNotExist:
+        return Response(data={'detail':'Does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = DesignationSerializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        serializer = DesignationSerializer(obj, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        obj.delete()
 
         return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)

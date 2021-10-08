@@ -2,10 +2,24 @@ from django.db import models
 from django.forms.models import model_to_dict
 # Create your models here.
 
+class Designation(models.Model):
+    title = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
+    date_added = models.DateTimeField( auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
+    
+
+    def delete(self):
+        self.is_active = False
+        self.save()
+        return
+    
 class Employee(models.Model):
     first_name = models.CharField(max_length=250)
     last_name  = models.CharField(max_length=250)
-    designation = models.CharField(max_length=250)
+    designation = models.ForeignKey(Designation, on_delete=models.DO_NOTHING, null=True)
     hour_rate = models.FloatField()
     phone = models.CharField(max_length=20)
     email = models.EmailField(null=True, blank=True)
@@ -25,7 +39,11 @@ class Employee(models.Model):
     def delete(self):
         self.is_active = False
         self.save()
-        return 
+        return
+    
+    @property
+    def designation_details(self):
+        return model_to_dict(self.designation)
 
 
 
@@ -119,4 +137,7 @@ class InvoiceServices(models.Model):
         self.save()
         return
 
+
+
+    
 ### owner@serp.com | testpass123
