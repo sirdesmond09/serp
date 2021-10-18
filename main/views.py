@@ -1,3 +1,5 @@
+from django.db.models.aggregates import Count
+from django.http.response import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -20,7 +22,9 @@ from django.contrib.auth.signals import user_logged_in
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from django.utils import timezone
+from django.db.models import Sum
+import xlwt
 
 @swagger_auto_schema(method='post', request_body=UserSerializer())
 @api_view(['GET', 'POST'])
@@ -398,3 +402,72 @@ def designation_detail(request, designation_id):
         obj.delete()
 
         return Response(data = {'message':'successful'}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def latest_services(request):
+    if request.method == 'GET':
+        services = InvoiceServices.objects.filter(is_active=True).order_by('-date_added')[:10]
+        serializer = InvoiceServiceSerializer(services, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+@api_view(['GET'])
+def service_stats(request):
+    today = timezone.now().date()
+    services = InvoiceServices.objects.filter(date_added__date=today, is_active=True)
+    total_service_today = services.aggregate(Sum('quantity'))
+    
+    rendered_services = InvoiceServices.objects.values('service_id', 'service__service_name').annotate(frequency = Count('service_id'))
+    print(rendered_services)
+    frequency = {serv['service__service_name'] :serv['frequency'] for serv in rendered_services}
+    
+    return Response({'today_sales':total_service_today, 'frequency':frequency}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def export_invoice_xls(request):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="invoice.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Invoice')
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['S/N', 'Invoice Number', 'Service Name','Customer', 'Employees', 'Amount Paid', 'Date']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    rows = Invoice.objects.filter(is_active=True)
+    serial_num=0
+    for row in rows:
+        row_num += 1
+        service_rendered = row.service_rendered.values('service__service_name')
+        employee_detail = row.employee_detail
+        serial_num +=1
+        data = {
+            'S/N': serial_num,
+            'invoice_num':row.invoice_num,
+            'service_name': ", ".join([serv['service__service_name'] for serv in service_rendered]),
+            'customer_name':row.customer.name,
+            'employees': ", ".join([f"{employee['first_name']} {employee['last_name']}" for employee in employee_detail]),
+            'amount':row.grand_total,
+            'date': row.date_added.strftime("%d-%m-%Y")
+        }
+    
+        col_num = 0
+        for key in data.keys():
+            ws.write(row_num, col_num, data[key], font_style)
+            col_num+=1
+            
+    wb.save(response)
+    return response

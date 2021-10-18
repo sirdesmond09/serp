@@ -21,4 +21,7 @@ urlpatterns = [
     path('invoices/', views.invoice),
     path('invoices/<int:invoice_id>/', views.invoice_detail),
     path('invoices/<int:invoice_id>/services/<int:service_rendered_id>/', views.invoice_item_edit),
+    path('latest_services/', views.latest_services),
+    path('service_stats/', views.service_stats),
+    path('download/excel', views.export_invoice_xls),
 ]
